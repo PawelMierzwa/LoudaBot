@@ -12,12 +12,10 @@ public class ready extends ListenerAdapter {
     }
 
     public void onMessageReceived(@NotNull MessageReceivedEvent ev) {
-        String prefix = "!!";
-//        String prefix = Config.get("PREFIX");
+        String prefix = Config.get("PREFIX");
         String raw = ev.getMessage().getContentRaw();
 
-//        if (raw.equalsIgnoreCase(prefix + "shutdown") && ev.getAuthor().getId().equals(Config.get("OWNER_ID"))) {
-        if (raw.equalsIgnoreCase(prefix + "shutdown") && ev.getAuthor().getId().equals("305757797658787841")) {
+        if (raw.equalsIgnoreCase(prefix + "shutdown") && ev.getAuthor().getId().equals(Config.get("OWNER_ID"))) {
             ev.getJDA().shutdown();
             BotCommons.shutdown(ev.getJDA());
         }

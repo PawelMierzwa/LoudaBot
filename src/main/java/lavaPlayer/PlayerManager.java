@@ -9,7 +9,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
@@ -44,8 +43,9 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(SlashCommandInteractionEvent event, TextChannel channel, String trackUrl) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    public void loadAndPlay(SlashCommandInteractionEvent event, String trackUrl) {
+        if (event.getGuild() == null) return;
+        final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
 
         this.audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
@@ -90,12 +90,12 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-
+                event.reply("No songs found!").setEphemeral(true).queue();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-
+               event.reply("Failed to load the song!").setEphemeral(true).queue();
             }
         });
     }

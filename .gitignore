@@ -23,6 +23,7 @@
 *.env
 
 # Gradle stuff #
+.gradle/
 gradle/
 gradlew
 gradlew.bat
@@ -32,7 +33,6 @@ hs_err_pid*
 replay_pid*
 
 # General no-no folders
-
 .idea/
-.gradle/
 build/
+out/

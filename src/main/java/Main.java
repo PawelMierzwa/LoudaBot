@@ -1,8 +1,11 @@
+import Commands.Player.play;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -10,16 +13,13 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import javax.security.auth.login.LoginException;
-
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 
 public class Main extends ListenerAdapter {
-    public static char prefix = '!';
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void main(String[] args) throws LoginException, IllegalArgumentException {
+    public static void main(String[] args) throws IllegalArgumentException {
         JDA jda = JDABuilder.createDefault(Config.get("TOKEN"),
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.GUILD_MESSAGE_TYPING,
@@ -27,17 +27,16 @@ public class Main extends ListenerAdapter {
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.DIRECT_MESSAGES,
                         GatewayIntent.GUILD_VOICE_STATES)
-                .disableCache(CacheFlag.EMOTE)
+                .disableCache(
+                        CacheFlag.EMOJI,
+                        CacheFlag.STICKER,
+                        CacheFlag.SCHEDULED_EVENTS)
                 .enableCache(CacheFlag.VOICE_STATE,CacheFlag.ONLINE_STATUS)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .build();
 
         // These commands take up to an hour to be activated after creation/update/delete
         CommandListUpdateAction commands = jda.updateCommands();
-
-            commands.addCommands(
-                    Commands.slash("help", "Write out bot capabilities")
-            );
 
             commands.addCommands(
                     Commands.slash("user", "Show information about a user")
@@ -113,6 +112,13 @@ public class Main extends ListenerAdapter {
             );
 
             commands.addCommands(
+                    Commands.user("Ban")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS))
+                            .setName("ban")
+                            .setGuildOnly(true)
+            );
+
+            commands.addCommands(
                     Commands.slash("coinflip", "Flip a coin")
             );
 
@@ -123,16 +129,37 @@ public class Main extends ListenerAdapter {
                             .addOptions(new OptionData(INTEGER, "amount", "How many roll you want")
                                     .setRequiredRange(1,5)) //default 1
             );
+
+            commands.addCommands(
+                    Commands.slash("randomemoji", "Sends a random emoji")
+            );
+
+            commands.addCommands(
+                Commands.slash("ping", "Checks the latency of the response")
+            );
+
+            commands.addCommands(
+                    Commands.slash("randomnumber", "Responds with a random number between a given range")
+                            .addOptions(new OptionData(INTEGER, "max","Highest possible number")
+                                    .setRequired(true))
+            );
+
+            commands.addCommands(
+                    Commands.slash("randomdoge", "Sends random \"funny dog\" picture")
+            );
+
+            commands.addCommands(
+                    Commands.slash("serverinfo", "Shows information about a current server")
+            );
+
             commands.queue();
             jda.updateCommands();
 
-
-        jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+        jda.getPresence().setStatus(OnlineStatus.IDLE);
         jda.getPresence().setActivity(Activity.of(Activity.ActivityType.COMPETING,"Stupidity Contest"));
         jda.addEventListener(new ready());
-        jda.addEventListener(new ChatCommands());
-        jda.addEventListener(new Embed());
         jda.addEventListener(new slashCommands());
+        jda.addEventListener(new play());
     }
 }
 

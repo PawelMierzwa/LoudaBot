@@ -1,4 +1,5 @@
 import Commands.Goofy.*;
+import Commands.Misc.help;
 import Commands.Misc.ping;
 import Commands.Misc.random;
 import Commands.Moderation.ban;
@@ -23,6 +24,9 @@ public class slashCommands extends ListenerAdapter {
         //noinspection EnhancedSwitchMigration
         switch (event.getName())
         {
+            case "help":
+                help.helpCommand(event);
+                break;
             case "ban":
                 Member member = event.getOption("user").getAsMember(); // the "user" option is required so it doesn't need a null-check here
                 User user = event.getOption("user").getAsUser();

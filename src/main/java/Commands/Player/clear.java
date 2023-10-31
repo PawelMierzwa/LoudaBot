@@ -31,7 +31,7 @@ public class clear {
         }
 
         GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        musicManager.scheduler.player.setPaused(true);
+        musicManager.scheduler.player.destroy();
         musicManager.scheduler.queue.clear();
 
         event.reply("The queue has been cleared.").queue();

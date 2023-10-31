@@ -131,7 +131,7 @@ public class Main extends ListenerAdapter {
                 Commands.slash("roll", "Roll a dice")
                         .addOptions(new OptionData(INTEGER, "max_number", "Highest possible number")
                                 .setRequiredRange(1, 100)) //default 6
-                        .addOptions(new OptionData(INTEGER, "amount", "How many roll you want")
+                        .addOptions(new OptionData(INTEGER, "amount", "How many rolls you want")
                                 .setRequiredRange(1, 5)) //default 1
         );
 

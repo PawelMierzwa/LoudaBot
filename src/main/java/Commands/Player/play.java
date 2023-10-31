@@ -124,6 +124,7 @@ public class play extends ListenerAdapter {
                 event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
             }
         }
+
         musicManager.scheduler.queue(PlayerManager.bestResults.get(ChooseResult-1));
         event.getHook().deleteOriginal().queue();
         PlayerManager.bestResults.clear();

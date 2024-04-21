@@ -1,5 +1,6 @@
 package Commands.Player;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import lavaPlayer.GuildMusicManager;
 import lavaPlayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,11 +10,15 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.URL;
-import java.util.Date;
+import java.util.*;
+import java.util.List;
+
+import static lavaPlayer.PlayerManager.bestResults;
 
 public class play extends ListenerAdapter {
 
@@ -32,8 +37,9 @@ public class play extends ListenerAdapter {
     public static void playCommand(SlashCommandInteractionEvent event, String song) {
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
+        bestResults.clear();
 
-        if (!memberVoiceState.inAudioChannel()){
+        if (!memberVoiceState.inAudioChannel()) {
             event.reply("You have to be in the voice channel!").setEphemeral(true).queue();
             return;
         }
@@ -41,12 +47,12 @@ public class play extends ListenerAdapter {
         Member self = event.getMember();
         GuildVoiceState selfVoiceState = self.getVoiceState();
 
-        if (!selfVoiceState.inAudioChannel()){
+        if (!selfVoiceState.inAudioChannel()) {
             event.reply("Bot is not in any voice channel :thinking:").setEphemeral(true).queue();
             return;
         }
 
-        if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())){
+        if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())) {
             event.reply("You need to be in the same channel as the bot!").setEphemeral(true).queue();
             return;
         }
@@ -74,59 +80,52 @@ public class play extends ListenerAdapter {
         PlayerManager.getINSTANCE().loadAndPlay(event, link);
     }
 
-    public static int ChooseResult;
+    String authorId;
 
-    public void onButtonInteraction(ButtonInteractionEvent event)
-    {
-        // users can spoof this id (!)
-        String[] id = event.getComponentId().split(":"); // custom id specified in the button
-        String authorId = id[0]; // the interacting user
-        String type = id[1]; // i cant remember what the hell is this xd
-        if (!authorId.equals(event.getUser().getId()))
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        String interactionId = event.getComponentId();
+        String[] id = interactionId.split(":");
+        authorId = id[0];
+        String buttonId = id[1];
+        if (!event.getUser().getId().equals(authorId)) {
             return;
-        event.deferEdit().queue(); // acknowledge the button was clicked, otherwise the interaction will fail
+        }
+        if (Objects.equals(buttonId, "delete")) {
+            event.getInteraction().getHook().deleteOriginal().queue();
+        }
+    }
 
-        final GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        String interactionId = event.getComponentId();
+        String[] id = interactionId.split(":");
+        String _authorId = id[0];
+        String selectorId = id[1];
+        String clickerId = event.getUser().getId();
+        if (selectorId.equals("choose-song") && _authorId.equals(clickerId)){
+            final GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
+            Date date = new Date();
+            EmbedBuilder playEmbed = new EmbedBuilder();
 
-        Date date = new Date();
+            List<String> selected = event.getValues();
+            int choice = Integer.parseInt(selected.get(0));
 
-        EmbedBuilder playEmbed = new EmbedBuilder();
+            List<AudioTrack>results = bestResults;
 
-        switch (type) {
-            case "1" -> {
-                ChooseResult = 1;
-                playEmbed.appendDescription("**Adding Track: " + PlayerManager.bestResults.get(0).getInfo().title + "**\n");
-                playEmbed.appendDescription("Requested by: <@" + authorId + "> at " + date);
-                event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
-            }
-            case "2" -> {
-                ChooseResult = 2;
-                playEmbed.appendDescription("**Adding Track: " + PlayerManager.bestResults.get(1).getInfo().title + "**\n");
-                playEmbed.appendDescription("Requested by: <@" + authorId + "> at " + date);
-                event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
-            }
-            case "3" -> {
-                ChooseResult = 3;
-                playEmbed.appendDescription("**Adding Track: " + PlayerManager.bestResults.get(2).getInfo().title + "**\n");
-                playEmbed.appendDescription("Requested by: <@" + authorId + "> at " + date);
-                event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
-            }
-            case "4" -> {
-                ChooseResult = 4;
-                playEmbed.appendDescription("**Adding Track: " + PlayerManager.bestResults.get(3).getInfo().title + "**\n");
-                playEmbed.appendDescription("Requested by: <@" + authorId + "> at " + date);
-                event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
-            }
-            case "5" -> {
-                ChooseResult = 5;
-                playEmbed.appendDescription("**Adding Track: " + PlayerManager.bestResults.get(4).getInfo().title + "**\n");
-                playEmbed.appendDescription("Requested by: <@" + authorId + "> at " + date);
-                event.getMessageChannel().sendMessageEmbeds(playEmbed.build()).queue();
+            //zmień odpowiedź na nową wiadomość z @silent, napraw delete
+            if (choice >= 1 && choice <= results.size()) {
+                playEmbed.appendDescription("**Adding Track: " + results.get(choice - 1).getInfo().title + "**\n");
+                playEmbed.appendDescription("Requested by: <@" + _authorId + "> at " + date);
+                event.editSelectMenu(null).queue();
+                /*event.getMessage().delete();
+                EmbedBuilder newEmbed = new EmbedBuilder();
+                newEmbed.appendDescription("**Adding Track: " + results.get(choice - 1).getInfo().title + "**\n");
+                newEmbed.appendDescription("Requested by: <@" + _authorId + "> at " + date);
+                event.getChannel().asTextChannel().sendMessage("@silent").addEmbeds(newEmbed.build()).queue();
+                musicManager.scheduler.queue(results.get(choice - 1));*/
+                musicManager.scheduler.queue(results.get(choice - 1));
             }
         }
-
-        musicManager.scheduler.queue(PlayerManager.bestResults.get(ChooseResult-1));
-        event.getHook().deleteOriginal().queue();
-        PlayerManager.bestResults.clear();
     }
 }

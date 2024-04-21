@@ -2,6 +2,7 @@ package lavaPlayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
@@ -39,7 +40,21 @@ public class TrackScheduler extends AudioEventAdapter {
             if (this.repeating2){
                 this.queue.offer(track.makeClone());
             }
+            if (endReason != AudioTrackEndReason.FINISHED)
+                System.out.println(track.getInfo().title + " ended.\nReason: " + endReason);
             nextTrack();
         }
+    }
+
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        System.out.println("Error on track: " + track.getInfo() + "\n" + exception.getMessage());
+        nextTrack();
+    }
+
+    @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        System.out.println(track.getInfo().title + " is stuck, skipping...");
+        nextTrack();
     }
 }

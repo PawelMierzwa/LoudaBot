@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,26 +63,26 @@ public class PlayerManager {
                     EmbedBuilder chooseEmbed = new EmbedBuilder();
                     chooseEmbed.setTitle("**Choose the song**");
 
-                    for (int i = 1; i <= 5; i++){
+                    for (int i = 1; i <= 10; i++){
                         bestResults.add(tracks.get(i-1));
                     }
+                    String uId = event.getUser().getId();
+                    StringSelectMenu.Builder builder = StringSelectMenu.create(uId + ":choose-song");
+
                     int index = 1;
                     for (AudioTrack result: bestResults){
-                        chooseEmbed.appendDescription(index + ". " + result.getInfo().title + "\n");
+                        builder.addOption(index + ". " + result.getInfo().title, String.valueOf(index));
                         index++;
                     }
-                    String uId = event.getUser().getId();
-                    event.deferReply().addEmbeds(chooseEmbed.build()).addActionRow(
-                            Button.primary(uId + ":1", "1."),
-                            Button.primary(uId + ":2", "2."),
-                            Button.primary(uId + ":3", "3."),
-                            Button.primary(uId + ":4", "4."),
-                            Button.primary(uId + ":5", "5.")
-                    ).queue();
+
+                    event.deferReply().addEmbeds(chooseEmbed.build())
+                            .addActionRow(builder.build())
+                            .addActionRow(
+                                    Button.danger(uId + ":delete", "Delete")
+                            ).queue();
                     chooseEmbed.clear();
                 } else {
                     event.reply("Adding to queue: " + playlist.getName() + ".\nSize of playlist: " + tracks.size()).queue();
-
                     for (final AudioTrack track : tracks) {
                         musicManager.scheduler.queue(track);
                     }
@@ -95,7 +96,8 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException exception) {
-               event.reply("Failed to load the song!").setEphemeral(true).queue();
+                event.reply("Failed to load the song!").setEphemeral(true).queue();
+                System.out.println("loadFailed: " + exception.severity + "\n" + exception.getMessage());
             }
         });
     }

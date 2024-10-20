@@ -1,12 +1,12 @@
 package Commands.Player;
 
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
+import lavalink.GuildMusicManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
+import utils.JDAListener;
 
 public class leave {
     public static void leaveCommand(SlashCommandInteractionEvent event) {
@@ -34,9 +34,9 @@ public class leave {
 
         Guild guild = event.getGuild();
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(guild);
+        GuildMusicManager musicManager = JDAListener.getOrCreateMusicManager(guild.getIdLong());
 
-        musicManager.audioPlayer.stopTrack();
+        musicManager.stop();
         musicManager.scheduler.queue.clear();
 
         audioManager.closeAudioConnection();

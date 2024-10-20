@@ -1,8 +1,5 @@
 package Commands.Player;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -30,29 +27,28 @@ public class loop {
             return;
         }
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        AudioPlayer audioPlayer = musicManager.audioPlayer;
-
-        if (audioPlayer.getPlayingTrack() == null) {
-            event.reply("There is no track playing at this moment.").queue();
-            return;
-        }
-
-        if (musicManager.scheduler.repeating && loop || musicManager.scheduler.repeating2 && loop){
-            event.reply("Loop is already on!").setEphemeral(true).queue();
-            return;
-        }
-        if (!musicManager.scheduler.repeating && !loop  || !musicManager.scheduler.repeating2 && !loop){
-            event.reply("Loop is already off!").setEphemeral(true).queue();
-            return;
-        }
-
-        if (type == 2) {
-            musicManager.scheduler.repeating2 = loop;
-            event.reply("Loop **all** is " + (loop ? "**on**" : "**off**")).queue();
-        } else {
-            musicManager.scheduler.repeating = loop;
-            event.reply("Loop **one** is " + (loop ? "**on**" : "**off**")).queue();
-        }
+//
+//
+//        if (audioPlayer.getPlayingTrack() == null) {
+//            event.reply("There is no track playing at this moment.").queue();
+//            return;
+//        }
+//
+//        if (musicManager.scheduler.repeating && loop || musicManager.scheduler.repeating2 && loop){
+//            event.reply("Loop is already on!").setEphemeral(true).queue();
+//            return;
+//        }
+//        if (!musicManager.scheduler.repeating && !loop  || !musicManager.scheduler.repeating2 && !loop){
+//            event.reply("Loop is already off!").setEphemeral(true).queue();
+//            return;
+//        }
+//
+//        if (type == 2) {
+//            musicManager.scheduler.repeating2 = loop;
+//            event.reply("Loop **all** is " + (loop ? "**on**" : "**off**")).queue();
+//        } else {
+//            musicManager.scheduler.repeating = loop;
+//            event.reply("Loop **one** is " + (loop ? "**on**" : "**off**")).queue();
+//        }
     }
 }

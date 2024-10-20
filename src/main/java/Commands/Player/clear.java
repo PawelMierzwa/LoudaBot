@@ -1,10 +1,9 @@
 package Commands.Player;
 
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import utils.JDAListener;
 
 public class clear {
     public static void clearCommand(SlashCommandInteractionEvent event) {
@@ -30,9 +29,7 @@ public class clear {
             return;
         }
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        musicManager.scheduler.player.destroy();
-        musicManager.scheduler.queue.clear();
+        JDAListener.getOrCreateMusicManager(event.getGuild().getIdLong()).scheduler.queue.clear();
 
         event.reply("The queue has been cleared.").queue();
     }

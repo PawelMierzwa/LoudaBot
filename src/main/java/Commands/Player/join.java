@@ -1,5 +1,6 @@
 package Commands.Player;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,11 +26,11 @@ public class join {
             return;
         }
 
-        AudioManager audioManager = event.getGuild().getAudioManager();
         AudioChannel audioChannel = memberVoiceState.getChannel();
+        JDA jda = event.getJDA();
 
         if (selfMember.hasPermission(audioChannel, Permission.VOICE_CONNECT)) {
-            audioManager.openAudioConnection(audioChannel);
+            jda.getDirectAudioController().connect(audioChannel);
             event.reply("Joined the voice channel").setEphemeral(true).queue();
         } else {
             event.reply("Can't join the channel, permission denied.").setEphemeral(true).queue();

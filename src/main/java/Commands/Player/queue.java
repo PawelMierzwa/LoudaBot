@@ -1,16 +1,15 @@
 package Commands.Player;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
+import dev.arbjerg.lavalink.client.player.LavalinkPlayer;
+import dev.arbjerg.lavalink.client.player.Track;
+import dev.arbjerg.lavalink.protocol.v4.TrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import utils.JDAListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class queue {
@@ -24,38 +23,38 @@ public class queue {
     }
 
     public static void queueCommand(SlashCommandInteractionEvent event) {
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        BlockingQueue<AudioTrack> queue = musicManager.scheduler.queue;
-
-        if (queue.isEmpty()) {
+        final var link = JDAListener.client.getOrCreateLink(event.getGuild().getIdLong());
+        final var mngr = JDAListener.getOrCreateMusicManager(event.getGuild().getIdLong());
+        final var musicManager = mngr.scheduler;
+        if (musicManager.queue.isEmpty()) {
             event.reply("Queue is currently empty.").queue();
             return;
         }
 
-        int trackCount = (Math.min(queue.size(), 20));
-        List<AudioTrack> trackList = new ArrayList<>(queue);
+        int trackCount = (Math.min(musicManager.queue.size(), 20));
+        List<Track> trackList = new ArrayList<>(musicManager.queue);
 
         EmbedBuilder queInfo = new EmbedBuilder();
         queInfo.setTitle("**Now playing: **");
 
-        AudioPlayer audioPlayer = musicManager.audioPlayer;
-        AudioTrack trackNow = audioPlayer.getPlayingTrack();
+        Optional<LavalinkPlayer> audioPlayer = mngr.getPlayer();
+        Track trackNow = link.getCachedPlayer().getTrack();
         try {
-            AudioTrackInfo infoNow = trackNow.getInfo();
-            queInfo.appendDescription("`" + infoNow.title + " by ")
-                    .appendDescription(infoNow.author + "` [`" + formatTime(trackNow.getDuration()) + "`]\n")
+            TrackInfo infoNow = trackNow.getInfo();
+            queInfo.appendDescription("`" + infoNow.getTitle() + " by ")
+                    .appendDescription(infoNow.getAuthor() + "` [`" + formatTime(infoNow.getPosition()) + '/' + formatTime(infoNow.getLength()) + "`]\n")
                     .appendDescription("**Current Queue:**\n");
 
             for (int i = 0; i < trackCount; i++) {
-                AudioTrack track = trackList.get(i);
-                AudioTrackInfo info = track.getInfo();
+                Track track = trackList.get(i);
+                TrackInfo info = track.getInfo();
 
                 queInfo.appendDescription("**#")
                         .appendDescription(String.valueOf(i + 1))
                         .appendDescription("** `")
-                        .appendDescription(String.valueOf(info.title))
+                        .appendDescription(String.valueOf(info.getTitle()))
                         .appendDescription("` [`")
-                        .appendDescription(formatTime(track.getDuration()))
+                        .appendDescription(formatTime(info.getLength()))
                         .appendDescription("`]\n");
             }
 

@@ -1,13 +1,10 @@
 package Commands.Player;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import utils.JDAListener;
+import utils.UserData;
 
 public class nowplaying {
     public static void nowplayingCommand(SlashCommandInteractionEvent event) {
@@ -32,17 +29,28 @@ public class nowplaying {
             return;
         }
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        AudioPlayer audioPlayer = musicManager.audioPlayer;
-        AudioTrack track = audioPlayer.getPlayingTrack();
+        final var link = JDAListener.client.getOrCreateLink(event.getGuild().getIdLong());
+        final var player = link.getCachedPlayer();
 
-        if (track == null) {
+        if (player == null) {
             event.reply("There is no track playing at this moment.").queue();
             return;
         }
 
-        AudioTrackInfo info = track.getInfo();
+        final var track = player.getTrack();
+        if (track == null) {
+            event.reply("Nothing playing currently!").queue();
+            return;
+        }
 
-        event.reply(info.uri).queue();
+        final var info = track.getInfo();
+        event.reply(
+                "Currently playing: %s\nDuration: %s/%s\nRequester: <@%s>".formatted(
+                        info.getTitle(),
+                        player.getPosition(),
+                        info.getLength(),
+                        track.getUserData(UserData.class).requester()
+                )
+        ).queue();
     }
 }

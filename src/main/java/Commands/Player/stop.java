@@ -1,10 +1,9 @@
 package Commands.Player;
 
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import utils.JDAListener;
 
 public class stop {
     public static void stopCommand(SlashCommandInteractionEvent event) {
@@ -29,15 +28,14 @@ public class stop {
             return;
         }
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
+        final var link = JDAListener.client.getOrCreateLink(event.getGuild().getIdLong());
 
-        if (musicManager.scheduler.player.isPaused()) {
+        if (link.getCachedPlayer().getPaused()) {
             event.reply("Current track is already stopped!").queue();
             return;
         }
 
-        musicManager.scheduler.player.setPaused(true);
-
+        link.getCachedPlayer().setPaused(true);
         event.reply("The player has been stopped.").queue();
     }
 }

@@ -1,13 +1,12 @@
 plugins {
     id 'java'
     id 'application'
-    id "com.github.johnrengelman.shadow" version "6.1.0"
 }
 
 mainClassName = 'Main'
 
 group 'cnsh'
-version '1.1'
+version '2.0.beta'
 
 repositories {
     mavenCentral()
@@ -15,23 +14,23 @@ repositories {
         url 'https://jitpack.io'
     }
     maven {
-        name 'duncte123-jfrog'
-        url 'https://duncte123.jfrog.io/artifactory/maven'
+        name 'm2-duncte123'
+        url 'https://m2.duncte123.dev/releases'
     }
     maven {
-        name 'm2-dv8tion'
-        url 'https://m2.dv8tion.net/releases'
+        url "https://maven.lavalink.dev/releases"
     }
 }
 
 
 dependencies {
-    implementation 'dev.arbjerg:lavaplayer:2.1.1'
+    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("net.dv8tion:JDA:5.1.2")
+    implementation("dev.arbjerg:lavalink-client:3.1.0")
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
-    implementation("net.dv8tion:JDA:5.0.0-beta.22")
-    compile 'io.github.cdimascio:dotenv-java:2.3.1'
-    implementation group: 'me.duncte123', name: 'botCommons', version: '2.3.10'
+    implementation 'io.github.cdimascio:dotenv-java:3.0.1'
+    implementation group: 'me.duncte123', name: 'botCommons', version: '3.1.18'
 }
 
 test {

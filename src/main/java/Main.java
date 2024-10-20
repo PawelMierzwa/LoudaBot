@@ -90,7 +90,12 @@ public class Main extends ListenerAdapter {
                 Commands.slash("play", "Play a song")
                         .addOptions(new OptionData(STRING, "song", "Search for a song you want to play (or link it)")
                                 .setRequired(true))
-        );
+                        .addOptions(new OptionData(STRING, "source", "Where to search for the song (youtube, youtube music, soundcloud)")
+                                .setRequired(false)
+                                .addChoice("YouTube", "yt")
+                                .addChoice("YouTube Music", "ytm")
+                                .addChoice("SoundCloud", "sc")
+                        ));
 
         commands.addCommands(
                 Commands.slash("skip", "Skip current song.")
@@ -208,7 +213,6 @@ public class Main extends ListenerAdapter {
 
                 final var connectedChannel = guild.getSelfMember().getVoiceState().getChannel();
 
-                // somehow
                 if (connectedChannel == null) {
                     return;
                 }
@@ -222,9 +226,9 @@ public class Main extends ListenerAdapter {
         List.of(
                 client.addNode(
                         new NodeOptions.Builder()
-                                .setName("localhost")
-                                .setServerUri("ws://localhost")
-                                .setPassword("chujek123")
+                                .setName("local")
+                                .setServerUri("ws://" + Config.get("LAVALINK_HOST") + ":" + Config.get("LAVALINK_PORT") + "/")
+                                .setPassword(Config.get("LAVALINK_PASSWORD"))
                                 .build()
                 )
         ).forEach((node) -> {

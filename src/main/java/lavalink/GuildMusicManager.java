@@ -35,4 +35,8 @@ public class GuildMusicManager {
     public Optional<LavalinkPlayer> getPlayer() {
         return this.getLink().map(Link::getCachedPlayer);
     }
+
+    public void nextTrack(){
+        this.scheduler.startTrack(this.scheduler.queue.poll());
+    }
 }

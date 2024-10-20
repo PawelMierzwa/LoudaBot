@@ -1,11 +1,10 @@
 package Commands.Player;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import lavaPlayer.GuildMusicManager;
-import lavaPlayer.PlayerManager;
+import lavalink.GuildMusicManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import utils.JDAListener;
 
 public class skip {
     public static void skipCommand(SlashCommandInteractionEvent event) {
@@ -30,15 +29,15 @@ public class skip {
             return;
         }
 
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getMusicManager(event.getGuild());
-        AudioPlayer audioPlayer = musicManager.audioPlayer;
+        final var audioPlayer = JDAListener.client.getOrCreateLink(event.getGuild().getIdLong()).getCachedPlayer();
+        GuildMusicManager musicManager = JDAListener.getOrCreateMusicManager(event.getGuild().getIdLong());
 
-        if (audioPlayer.getPlayingTrack() == null) {
+        if (audioPlayer.getTrack() == null) {
             event.reply("There is no track playing at this moment.").queue();
             return;
         }
 
-        musicManager.scheduler.nextTrack();
+        musicManager.nextTrack();
         event.reply("Skipped the current track").queue();
     }
 }

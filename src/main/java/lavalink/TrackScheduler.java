@@ -60,7 +60,7 @@ public class TrackScheduler {
         }
     }
 
-    private void startTrack(Track track) {
+    protected void startTrack(Track track) {
         this.guildMusicManager.getLink().ifPresent(
                 (link) -> link.createOrUpdatePlayer()
                         .setTrack(track)

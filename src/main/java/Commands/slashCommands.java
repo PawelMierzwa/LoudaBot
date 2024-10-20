@@ -1,3 +1,5 @@
+package Commands;
+
 import Commands.Goofy.*;
 import Commands.Misc.help;
 import Commands.Misc.ping;

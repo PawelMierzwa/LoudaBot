@@ -52,7 +52,7 @@ public class queue {
                 queInfo.appendDescription("**#")
                         .appendDescription(String.valueOf(i + 1))
                         .appendDescription("** `")
-                        .appendDescription(String.valueOf(info.getTitle()))
+                        .appendDescription(info.getTitle())
                         .appendDescription("` [`")
                         .appendDescription(formatTime(info.getLength()))
                         .appendDescription("`]\n");

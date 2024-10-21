@@ -1,12 +1,23 @@
 package Commands.Player;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import utils.JDAListener;
 import utils.UserData;
 
+import java.util.concurrent.TimeUnit;
+
 public class nowplaying {
+    private static String formatTime(long timeInMillis) {
+        final long hours = timeInMillis / TimeUnit.HOURS.toMillis(1);
+        final long minutes = timeInMillis / TimeUnit.MINUTES.toMillis(1);
+        final long seconds = timeInMillis % TimeUnit.MINUTES.toMillis(1) / TimeUnit.SECONDS.toMillis(1);
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
     public static void nowplayingCommand(SlashCommandInteractionEvent event) {
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
@@ -44,13 +55,20 @@ public class nowplaying {
         }
 
         final var info = track.getInfo();
-        event.reply(
-                "Currently playing: %s\nDuration: %s/%s\nRequester: <@%s>".formatted(
-                        info.getTitle(),
-                        player.getPosition(),
-                        info.getLength(),
+        var embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle(info.getTitle());
+        embedBuilder.setUrl(info.getUri());
+        embedBuilder.setDescription(
+                "Playing from: **%s**\nAuthor: **%s**\nRequested by: <@%s>".formatted(
+                        info.getSourceName(),
+                        info.getAuthor(),
                         track.getUserData(UserData.class).requester()
                 )
-        ).queue();
+        );
+        embedBuilder.appendDescription("Position: %s, Debug: %s".formatted(formatTime(info.getPosition()), info.getPosition()));
+        String footer = info.isStream() ? "LIVE" : "Duration: %s/%s".formatted(formatTime(info.getPosition()), formatTime(info.getLength()));
+        embedBuilder.setImage(info.getArtworkUrl());
+        embedBuilder.setFooter(footer, null);
+        event.replyEmbeds(embedBuilder.build()).queue();
     }
 }

@@ -51,7 +51,8 @@ public class slashCommands extends ListenerAdapter {
                 break;
             case "play":
                 String song = event.getOption("song").getAsString();
-                play.playCommand(event, song);
+                String source = event.getOption("source") != null ? event.getOption("source").getAsString() : "";
+                play.playCommand(event, song, source);
                 break;
             case "stop":
                 stop.stopCommand(event);

@@ -1,6 +1,7 @@
 package lavalink;
 
 import dev.arbjerg.lavalink.client.player.Track;
+import dev.arbjerg.lavalink.protocol.v4.Filters;
 import dev.arbjerg.lavalink.protocol.v4.Message;
 
 import java.util.LinkedList;
@@ -46,7 +47,6 @@ public class TrackScheduler {
     }
 
     public void onTrackStart(Track track) {
-        // Your homework: Send a message to the channel somehow, have fun!
         System.out.println("Track started: " + track.getInfo().getTitle());
     }
 

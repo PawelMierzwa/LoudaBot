@@ -10,8 +10,20 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utils.JDAListener;
 
+import java.net.URL;
+
 public class play extends ListenerAdapter {
-    public static void playCommand(SlashCommandInteractionEvent event, String song) {
+    private static boolean isValidURL(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            url.toURI();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void playCommand(SlashCommandInteractionEvent event, String song, String source) {
         Guild guild = event.getGuild();
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
@@ -31,13 +43,39 @@ public class play extends ListenerAdapter {
             }
         }
 
+        String search = "";
+        boolean isSearchResult;
+        if (!isValidURL(song)) {
+            switch (source.toLowerCase()) {
+                case "ytm":
+                    search = "ytmsearch:" + song;
+                    isSearchResult = true;
+                    break;
+                case "sc":
+                    search = "scsearch:" + song;
+                    isSearchResult = true;
+                    break;
+                default:
+                    search = "ytsearch:" + song;
+                    isSearchResult = true;
+                    break;
+            }
+        } else {
+            search = String.join("", song);
+            isSearchResult = false;
+        }
+
+        if (search.isEmpty()) {
+            event.reply("Invalid source!").setEphemeral(true).queue();
+            return;
+        }
+
         final long guildId = guild.getIdLong();
         final Link link = JDAListener.client.getOrCreateLink(guildId);
         final var mngr = JDAListener.getOrCreateMusicManager(guildId);
-        link.loadItem(song).subscribe(new AudioLoader(event, mngr));
+        link.loadItem(search).subscribe(new AudioLoader(event, mngr));
     }
 }
-
 
 //import static lavaPlayer.PlayerManager.bestResults;
 //

@@ -3,6 +3,8 @@ package lavalink;
 
 import dev.arbjerg.lavalink.client.AbstractAudioLoadResultHandler;
 import dev.arbjerg.lavalink.client.player.*;
+import dev.arbjerg.lavalink.protocol.v4.TrackInfo;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import utils.UserData;
@@ -30,16 +32,13 @@ public class AudioLoader extends AbstractAudioLoadResultHandler {
 
         final var trackTitle = track.getInfo().getTitle();
 
-        event.getHook().sendMessage("Added to queue: " + trackTitle + "\nRequested by: <@" + userData.requester() + '>').queue();
+        event.getHook().sendMessage("Added to queue: " + trackTitle).queue();
     }
 
     @Override
     public void onPlaylistLoaded(@NotNull PlaylistLoaded result) {
         final int trackCount = result.getTracks().size();
-        event.getHook()
-                .sendMessage("Added " + trackCount + " tracks to the queue from " + result.getInfo().getName() + "!")
-                .queue();
-
+        event.getHook().sendMessage("Adding " + trackCount + " tracks to the queue from " + result.getInfo().getName() + "!").queue();
         this.mngr.scheduler.enqueuePlaylist(result.getTracks());
     }
 
@@ -52,7 +51,20 @@ public class AudioLoader extends AbstractAudioLoadResultHandler {
             return;
         }
 
-        final Track firstTrack = tracks.get(0);
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Search results");
+        for (Track track : tracks) {
+            final TrackInfo info = track.getInfo();
+            embed.appendDescription("**#" + (tracks.indexOf(track) + 1) + "** `")
+                    .appendDescription(info.getTitle())
+                    .appendDescription("` by ")
+                    .appendDescription(info.getAuthor())
+                    .appendDescription("\n");
+        }
+
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+        final Track firstTrack = tracks.getFirst();
 
         event.getHook().sendMessage("Adding to queue: " + firstTrack.getInfo().getTitle()).queue();
 
@@ -66,6 +78,6 @@ public class AudioLoader extends AbstractAudioLoadResultHandler {
 
     @Override
     public void loadFailed(@NotNull LoadFailed result) {
-        event.getHook().sendMessage("Failed to load track! " + result.getException().getMessage()).queue();
+        event.getHook().sendMessage("Failed to load the track! " + result.getException().getMessage()).queue();
     }
 }
